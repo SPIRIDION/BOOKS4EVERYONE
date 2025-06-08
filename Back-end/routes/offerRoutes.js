@@ -5,18 +5,18 @@ const { protect } = require('../middleware/authMiddleware')
 const upload = require('../middleware/multer')
 
 // otteniamo tutte le offerte
-router.get('/offers', offerController.getAllOffers)
+router.get('/', offerController.getAllOffers)
 
 // otteniamo una singola offerta tramite il suo id
-router.get('/offers/:id', offerController.getOneOffer)
+router.get('/:id', offerController.getOneOffer)
 
 // creiamo una nuova offerta
-router.post('/offers', protect, upload.single('immagineLibro'), offerController.createOffer)
+router.post('/', protect, upload.single('immagineLibro'), offerController.createOffer)
 
 // modifichiamo un'offerta
-router.put('/offers/:id', protect, upload.single('immagineLibro'), offerController.updateOffer)
+router.put('/:id', protect, upload.single('immagineLibro'), offerController.updateOffer)
 
 // eliminiamo un'offerta
-router.delete('/offers/:id', protect, offerController.deleteOffer)
+router.delete('/:id', protect, offerController.deleteOffer)
 
 module.exports = router

@@ -4,9 +4,9 @@ const commentController = require('../controllers/commentoController')
 const { protect } = require('../middleware/authMiddleware')
 
 // aggiungiamo un commento
-router.post('/comments/:offerId', protect, commentController.addComment)
+router.post('/:offerId', protect, commentController.addComment)
 
 // otteniamo tutti i commenti di una specifica offerta
-router.get('/comments/:offerId', commentController.getAllCommentsPerOffer)
+router.get('/:offerId', commentController.getAllCommentsPerOffer)
 
 module.exports = router
