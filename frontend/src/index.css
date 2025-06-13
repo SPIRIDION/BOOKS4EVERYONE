@@ -1,0 +1,26 @@
+.offer-card {
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  padding-bottom: 60px; /* spazio per il bottone */
+}
+
+.offer-card:hover {
+  transform: scaleY(1.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.details-button-container {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.offer-card:hover .details-button-container {
+  opacity: 1;
+}
