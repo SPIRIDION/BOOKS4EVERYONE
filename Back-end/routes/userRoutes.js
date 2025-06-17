@@ -4,6 +4,10 @@ const userController = require('../controllers/userController')
 const multer = require('multer')
 const storage = require('../utils/storage')
 const upload = multer({ storage })
+const { protect } = require('../middleware/authMiddleware')
+
+// restituisce i dati dell'utente loggato
+router.get('/me', protect, userController.getMe)
 
 // registriamo un nuovo utente 
 router.post('/register', upload.single('immagineProfilo'),userController.registerUser)

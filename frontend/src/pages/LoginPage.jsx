@@ -61,6 +61,15 @@ function LoginPage() {
             Accedi
           </button>
         </form>
+        <div className="mt-3 text-center">
+          <p>Non sei ancora registrato?</p>
+          <button
+            className="btn btn-outline-secondary"
+            onClick={() => navigate('/register')}
+          >
+            Registrati
+          </button>
+        </div>
       </div>
     </div>
   )

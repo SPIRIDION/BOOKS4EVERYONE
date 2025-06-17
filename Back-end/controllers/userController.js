@@ -129,3 +129,17 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({message: 'Errore durante l\'eliminazione dello user'})
   }
 }
+
+// restituisce i dati dell'utente autenticato (via token)
+exports.getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password')
+    if (!user) {
+      return res.status(404).json({ message: 'Utente non trovato' })
+    }
+
+    res.status(200).json(user)
+  } catch (err) {
+    res.status(500).json({ message: `Errore nel recupero del profilo: ${err}` })
+  }
+}

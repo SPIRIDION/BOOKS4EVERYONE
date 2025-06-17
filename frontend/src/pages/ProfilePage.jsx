@@ -1,10 +1,24 @@
 import { useState, useEffect } from 'react'
 import axios from '../utils/axiosConfig'
 import { useNavigate } from 'react-router-dom'
-import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
+import { Link, useLocation } from 'react-router-dom'
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 function ProfilePage() {
+
+  const navigate = useNavigate()
+
+  const handleMyOffersClick = () => {
+    navigate('/my-offers')
+  }
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+      if (!token) {
+        navigate('/login')
+      }
+  }, [navigate])
+
   const [form, setForm] = useState({
     nome: '',
     cognome: '',
@@ -16,13 +30,12 @@ function ProfilePage() {
   })
   const [anteprima, setAnteprima] = useState('')
   const [file, setFile] = useState(null)
-  const navigate = useNavigate()
 
-  // Simulazione fetch dati utente loggato
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const res = await axios.get('/users/me') // Assicurati che questa rotta esista nel backend
+        const token = localStorage.getItem('token')
+        const res = await axios.get('/users/me')
         setForm({ ...res.data })
         setAnteprima(res.data.immagineProfilo)
       } catch (err) {
@@ -67,9 +80,22 @@ function ProfilePage() {
     }
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    navigate('/login')
+  }
+
   return (
     <>
-      <Navbar />
+      <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+        <Link to="/" className="navbar-brand fw-bold text-white">
+          BOOKS4EVERYONE
+        </Link>
+
+        <div className="expand-left">
+          <button className="btn btn-outline-light" onClick={handleMyOffersClick}>Le mie offerte</button>
+        </div>
+      </nav>
       <div className="container mt-5">
         <div className="row">
           <div className="col-12 col-md-4 text-center mb-4">
@@ -85,8 +111,11 @@ function ProfilePage() {
               <input name="residenza" className="form-control mb-2" placeholder="Residenza" value={form.residenza} onChange={handleChange} required />
               <input type="password" name="password" className="form-control mb-2" placeholder="Password" value={form.password} onChange={handleChange} required />
               <input type="file" className="form-control mb-2" onChange={handleImageChange} />
-              <button className="btn btn-primary" type="submit">Aggiorna Profilo</button>
+              <button className="btn btn-primary mt-5 mb-3" type="submit">Aggiorna Profilo</button>
             </form>
+            <button className="btn btn-danger mt-3 mb-5" onClick={handleLogout}>
+              <i className="bi bi-box-arrow-right me-1"></i> Logout
+            </button>
           </div>
         </div>
       </div>

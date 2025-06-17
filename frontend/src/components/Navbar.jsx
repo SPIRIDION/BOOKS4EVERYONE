@@ -8,7 +8,6 @@ function Navbar() {
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-      {/* Logo del sito */}
       <Link to="/" className="navbar-brand fw-bold text-white">
         BOOKS4EVERYONE
       </Link>

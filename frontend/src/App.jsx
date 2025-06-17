@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
 import OfferDetailsPage from "./pages/OfferDetailsPage";
+import MyOffersPage from './pages/MyOffersPage'
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/offerta/:offerId" element={<OfferDetailsPage />} />
+            <Route path="/my-offers" element={<MyOffersPage />} />
           </Routes>
         </main>
       </div>

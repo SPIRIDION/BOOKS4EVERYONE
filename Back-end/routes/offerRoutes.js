@@ -7,6 +7,9 @@ const upload = require('../middleware/multer')
 // otteniamo tutte le offerte
 router.get('/', offerController.getAllOffers)
 
+// otteniamo tutte le offerte di un singolo user
+router.get('/mine', protect, getOffersByUser)
+
 // otteniamo una singola offerta tramite il suo id
 router.get('/:id', offerController.getOneOffer)
 

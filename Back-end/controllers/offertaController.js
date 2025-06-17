@@ -28,7 +28,7 @@ exports.createOffer = async (req, res) => {
 // ottenere tutte le offerte
 exports.getAllOffers = async (req, res) => {
   try {
-    const offerte = await offer.find().populate('user','username immagineProfillo')
+    const offerte = await offer.find().populate('user','username immagineProfilo')
     res.status(200).json(offerte)
   } catch(err) {
     res.status(500).json({message: `Errore nel recupero delle offerte: ${err}`})
@@ -79,14 +79,25 @@ exports.updateOffer = async (req, res) => {
 exports.deleteOffer = async (req, res) => {
   try {
     const offerta = await offer.findById(req.params.id)
-    if (!offerta) return res.status(404).json({message: 'Offerta non trobìvata!'})
+    if (!offerta) return res.status(404).json({message: 'Offerta non trovata!'})
     
     if (offerta.user.toString() !== req.user.id)
-      return res.sttus(403).json({message: 'Non autorizzato!'})
+      return res.status(403).json({message: 'Non autorizzato!'})
 
     await offer.findByIdAndDelete(req.params.id)
     res.status(200).json({message: 'Offerta eliminata'})
   } catch(err) {
     res.status(500).json({message: `Errore nella cancellazione: ${err}`})
+  }
+}
+
+// ottenere tutte le offerte di un user autenticato
+exports.getOffersByUser = async (req, res) => {
+  try {
+    const userId = req.user.id // preso dal JWT
+    const offerte = await offer.find({ user: userId }).populate('user', 'username immagineProfilo')
+    res.status(200).json(offerte)
+  } catch(err) {
+    res.status(500).json({ message: `Errore nel recupero offerte dell'utente: ${err}` })
   }
 }
