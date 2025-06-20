@@ -1,8 +1,6 @@
 // src/App.jsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
@@ -10,6 +8,7 @@ import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
 import OfferDetailsPage from "./pages/OfferDetailsPage";
 import MyOffersPage from './pages/MyOffersPage'
+import AddOfferPage from './pages/AddOfferPage';
 
 function App() {
   return (
@@ -23,6 +22,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/offerta/:offerId" element={<OfferDetailsPage />} />
             <Route path="/my-offers" element={<MyOffersPage />} />
+            <Route path="/add-offer" element={<AddOfferPage />} />
           </Routes>
         </main>
       </div>

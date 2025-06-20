@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react'
-import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { Card, Button, Spinner } from 'react-bootstrap'
-import axios from 'axios'
+import api from '../utils/axiosConfig'
 
 const MyOffersPage = () => {
   const [offers, setOffers] = useState([])
@@ -12,17 +11,13 @@ const MyOffersPage = () => {
 
   const fetchMyOffers = async () => {
     try {
-      const token = localStorage.getItem('token')
-      const res = await axios.get('/offers/mine', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      const res = await api.get('/offers/mine')
+      console.log('Risposta da /offers/mine:', res.data)
 
       const offersWithRatings = await Promise.all(
         res.data.map(async (offer) => {
           try {
-            const commentsRes = await axios.get(`/comments/${offer._id}`)
+            const commentsRes = await api.get(`/comments/${offer._id}`)
             const comments = commentsRes.data
             const averageRate =
               comments.length > 0
@@ -48,12 +43,7 @@ const MyOffersPage = () => {
     if (!confirmed) return
 
     try {
-      const token = localStorage.getItem('token')
-      await axios.delete(`/offers/${offerId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      await api.delete(`/offers/${offerId}`)
       setOffers(offers.filter((offer) => offer._id !== offerId))
     } catch (err) {
       console.error('Errore durante l\'eliminazione:', err)
@@ -66,7 +56,19 @@ const MyOffersPage = () => {
 
   return (
     <>
-      <Navbar />
+      <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+        <Link to="/" className="navbar-brand fw-bold text-white">
+          BOOKS4EVERYONE
+        </Link>
+
+        <Button variant="secondary" onClick={() => navigate('/profile')}>
+          Torna al profilo
+        </Button>
+        <Button variant="success" onClick={() => navigate('/add-offer')}>
+          Nuova offerta
+        </Button>
+        
+      </nav>
       <div className="container py-4">
         <h2 className="mb-4 text-center">Le mie offerte</h2>
         {loading ? (
