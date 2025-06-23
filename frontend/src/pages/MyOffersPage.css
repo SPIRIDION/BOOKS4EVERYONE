@@ -1,0 +1,19 @@
+.offer-card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+}
+
+.offer-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.comment-button {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.offer-card:hover .comment-button {
+  opacity: 1;
+}

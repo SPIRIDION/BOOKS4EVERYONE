@@ -8,12 +8,21 @@ const cloudinary = require('cloudinary')
 exports.registerUser = async (req, res) => {
   try {
     const { nome, cognome, username, email, residenza, password } = req.body
-    const immagineProfilo = req.file?.path || ''
 
     // verifica se l'email è già registrata
     const existUser = await User.findOne({email})
     if (existUser) {
       return res.status(400).json({message: 'Email già registrata'})
+    }
+
+    // carica immagine su Cloudinary (se presente)
+    let immagineProfilo = ''
+    if (req.file) {
+      console.log('Percorso file:', req.file.path)
+      const result = await cloudinary.v2.uploader.upload(req.file.path, {
+        folder: 'profiliLibriUsati'
+      })
+      immagineProfilo = result.secure_url
     }
 
     // criptiamo la password con bcrypt
@@ -80,34 +89,31 @@ exports.getUserById = async (req, res) => {
 // modifica di un user 
 exports.updateUser = async (req, res) => {
   try {
-    
     const user = await User.findById(req.params.id)
-    if (!user) return res.status(404).json({message: `User non trovato `})
+    if (!user) return res.status(404).json({message: 'User non trovato'})
 
-    const { nome, cognome, username, email, residenza, password } = req.body || {}// fallback in caso si inviasse solo la foto
+    if (req.user.id !== user._id.toString())
+      return res.status(403).json({message: 'Non autorizzato'})
 
-    // aggiorna i campi solo se presenti
+    const { nome, cognome, username, email, residenza, password } = req.body
     if (nome) user.nome = nome
     if (cognome) user.cognome = cognome
     if (username) user.username = username
     if (email) user.email = email
     if (residenza) user.residenza = residenza
     if (req.file) {
-      if (user.immagineProfilo) {// eliminiamo la vecchia immagine profilo, solo se presente
+      if (user.immagineProfilo) {
         const publicId = user.immagineProfilo.split('/').pop().split('.')[0]
         await cloudinary.uploader.destroy(publicId)
       }
-      user.immagineProfilo = req.file.path// salviamo la nuova immagine profilo
+      user.immagineProfilo = req.file.path
     }
-    if (password) {
-      const hashPassword = await bcrypt.hash(password, 10)
-      user.password = hashPassword
-    }
+    if (password) user.password = await bcrypt.hash(password, 10)
 
     await user.save()
-    res.status(200).json({message: 'User aggiornato con successo', user})
-  } catch(err) {
-    res.status(500).json({message: `Errore durante l\'aggiornamento del profilo: ${err}`})
+    res.status(200).json({message: 'User aggiornato', user})
+  } catch (err) {
+    res.status(500).json({message: `Errore aggiornamento: ${err}`})
   }
 }
 

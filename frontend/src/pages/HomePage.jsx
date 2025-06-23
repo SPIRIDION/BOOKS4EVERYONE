@@ -10,22 +10,35 @@ function HomePage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const fetchOffers = async () => {
+    const fetchOffersWithRatings = async () => {
       try {
         const res = await axios.get('/offers')
-        setOffers(res.data)
+        const offers = res.data
+
+        const offersWithRatings = await Promise.all(
+          offers.map(async (offer) => {
+            try {
+              const commentRes = await axios.get(`/comments/${offer._id}`)
+              const commenti = commentRes.data
+              const media =
+                commenti.length > 0
+                  ? Math.round(commenti.reduce((acc, c) => acc + c.rate, 0) / commenti.length)
+                  : 0
+              return { ...offer, commenti, mediaVoto: media }
+            } catch {
+              return { ...offer, commenti: [], mediaVoto: 0 }
+            }
+          })
+        )
+
+        setOffers(offersWithRatings)
       } catch (err) {
         console.error('Errore nel recupero delle offerte:', err)
       }
     }
-    fetchOffers()
-  }, [])
 
-  const calcolaMediaVoto = (commenti) => {
-    if (!commenti || commenti.length === 0) return 0
-    const somma = commenti.reduce((acc, curr) => acc + curr.voto, 0)
-    return Math.round(somma / commenti.length)
-  }
+    fetchOffersWithRatings()
+  }, [])
 
   const renderStars = (media) => {
     return [...Array(5)].map((_, i) => (
@@ -36,13 +49,12 @@ function HomePage() {
   return (
     <div>
       <Navbar />
-      <div className="container">
+      <div className="container main-content">
         <div className="row">
           {/* Sidebar */}
           <div className="col-md-3 bg-light d-none d-md-block p-3 sidebar">
             <h5>Menu</h5>
             <button className="btn btn-outline-primary w-100 my-4" onClick={() => navigate('/cart')}>Carrello</button>
-            <button className="btn btn-outline-success w-100" onClick={() => navigate('/new-offer')}>Nuova Offerta</button>
           </div>
 
           {/* Main content */}
@@ -63,9 +75,9 @@ function HomePage() {
                     )}
                     <div className="card-body">
                       <h5 className="card-title fw-bold">{offer.titolo}</h5>
-                      <div>{renderStars(calcolaMediaVoto(offer.commenti))}</div>
-                      {offer.commenti?.[0] && (
-                        <p className="card-text mt-2">{offer.commenti[0].testo}</p>
+                      <div>{renderStars(offer.mediaVoto)}</div>
+                      {offer.commenti?.[0]?.titolo && (
+                        <p className="card-text mt-2">{offer.commenti[0].titolo}</p>
                       )}
                       <p className="card-text text-muted mt-2">
                         Pubblicato da: {offer.user?.username || 'Utente sconosciuto'}

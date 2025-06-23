@@ -30,7 +30,7 @@ exports.getAllCommentsPerOffer = async (req, res) => {
     const offerId = req.params.offerId
     console.log('ID ricevuto nella get: ' + offerId)
 
-    const comments = await Comment.find({ offer: offerId }).populate('user', 'username')
+    const comments = await Comment.find({ offer: offerId }).populate('user', 'username immagineProfilo')
     res.status(200).json(comments)
   } catch(err) {
     res.status(500).json({message: `Errore nel recupero dei commenti: ${err}`})

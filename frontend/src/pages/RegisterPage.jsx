@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import axios from '../utils/axiosConfig'
 import { useNavigate } from 'react-router-dom'
+import Footer from '../components/Footer'
+import Navbar from '../components/Navbar'
 
 function RegisterPage() {
   // Stato per i campi del form
@@ -11,10 +13,11 @@ function RegisterPage() {
     email: '',
     residenza: '',
     password: '',
-    immagineProfilo: ''  
+    immagineProfilo: null
   })
 
-  const [uploading, setUploading] = useState(false) // Stato per mostrare feedback durante l’upload
+  const [anteprima, setAnteprima] = useState(null)
+  const [uploading, setUploading] = useState(false)
 
   const navigate = useNavigate()
 
@@ -23,66 +26,123 @@ function RegisterPage() {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  // Gestione upload immagine
-  const handleImageUpload = async (e) => {
+  // Gestione selezione immagine
+  const handleImageChange = (e) => {
     const file = e.target.files[0]
-    if (!file) return
-
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('upload_preset', import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET)
-
-    try {
-      setUploading(true)
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`, {
-        method: 'POST',
-        body: formData
-      })
-      const data = await res.json()
-      console.log('URL ottenuto da Cloudinary:', data.secure_url) // debug
-      setForm(prev => ({ ...prev, immagineProfilo: data.secure_url }))
-    } catch (err) {
-      alert('Errore nel caricamento immagine')
-    } finally {
-      setUploading(false)
+    if (file) {
+      setForm(prev => ({ ...prev, immagineProfilo: file }))
+      setAnteprima(URL.createObjectURL(file))
     }
   }
 
   // Gestione invio form
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setUploading(true)
+
+    const data = new FormData()
+    data.append('nome', form.nome)
+    data.append('cognome', form.cognome)
+    data.append('username', form.username)
+    data.append('email', form.email)
+    data.append('residenza', form.residenza)
+    data.append('password', form.password)
+    if (form.immagineProfilo) {
+      data.append('immagineProfilo', form.immagineProfilo)
+    }
+
     try {
-      await axios.post('/users/register', form)
-      console.log('Dati inviati al backend:', form) // debug
+      await axios.post('/users/register', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
       alert('Registrazione completata!')
       navigate('/login')
     } catch (err) {
       alert('Errore durante la registrazione')
+      console.error(err)
+    } finally {
+      setUploading(false)
     }
   }
 
   return (
-    <div className="container mt-5">
-      <h2>Registrazione</h2>
-      <form onSubmit={handleSubmit}>
-        <input name="nome" className="form-control mb-2" placeholder="Nome" onChange={handleChange} required />
-        <input name="cognome" className="form-control mb-2" placeholder="Cognome" onChange={handleChange} required />
-        <input name="username" className="form-control mb-2" placeholder="Username" onChange={handleChange} required />
-        <input type="email" name="email" className="form-control mb-2" placeholder="Email" onChange={handleChange} required />
-        <input name="residenza" className="form-control mb-2" placeholder="Residenza" onChange={handleChange} required />
-        <input type="password" name="password" className="form-control mb-2" placeholder="Password" onChange={handleChange} required />
+    <div>
+      <Navbar />
+      <div className="container mt-5 main-content">
+        <h2>Registrazione</h2>
+        <form onSubmit={handleSubmit} encType="multipart/form-data">
+          <input
+            name="nome"
+            className="form-control mb-2"
+            placeholder="Nome"
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="cognome"
+            className="form-control mb-2"
+            placeholder="Cognome"
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="username"
+            className="form-control mb-2"
+            placeholder="Username"
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="email"
+            name="email"
+            className="form-control mb-2"
+            placeholder="Email"
+            onChange={handleChange}
+            required
+          />
+          <input
+            name="residenza"
+            className="form-control mb-2"
+            placeholder="Residenza"
+            onChange={handleChange}
+            required
+          />
+          <input
+            type="password"
+            name="password"
+            className="form-control mb-2"
+            placeholder="Password"
+            onChange={handleChange}
+            required
+          />
 
-        <input type="file" className="form-control mb-2" accept="image/*" onChange={handleImageUpload} />
-        {uploading && <p>Caricamento immagine in corso...</p>}
-        {form.immagineProfilo && (
-          <div className="mb-2">
-            <p>Anteprima immagine:</p>
-            <img src={form.immagineProfilo} alt="Anteprima" style={{ height: '100px' }} />
-          </div>
-        )}
+          <input
+            type="file"
+            className="form-control mb-2"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
 
-        <button className="btn btn-primary" type="submit">Registrati</button>
-      </form>
+          {uploading && <p>Caricamento in corso...</p>}
+
+          {anteprima && (
+            <div className="mb-2">
+              <p>Anteprima immagine:</p>
+              <img
+                src={anteprima}
+                alt="Anteprima"
+                style={{ height: '100px', borderRadius: '8px' }}
+              />
+            </div>
+          )}
+
+          <button className="btn btn-primary" type="submit">
+            Registrati
+          </button>
+        </form>
+      </div>
     </div>
   )
 }

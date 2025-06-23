@@ -29,7 +29,6 @@ const AddOfferPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const token = localStorage.getItem('token')
 
     const data = new FormData()
     data.append('titolo', formData.titolo)
@@ -56,7 +55,7 @@ const AddOfferPage = () => {
   return (
     <>
       <Navbar />
-      <Container className="py-4">
+      <Container className="py-4 main-content">
         <h2 className="mb-4 text-center">Crea una nuova offerta</h2>
         {error && <Alert variant="danger">{error}</Alert>}
         {success && <Alert variant="success">Offerta creata con successo!</Alert>}

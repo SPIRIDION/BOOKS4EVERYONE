@@ -1,3 +1,33 @@
+.custom-card-img {
+  height: 200px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.custom-card {
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.custom-card .details-button-container {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.custom-card:hover .details-button-container {
+  opacity: 1;
+}
+
+/* App.css o index.css */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+
 .offer-card {
   border: 1px solid #dee2e6;
   border-radius: 0.5rem;

@@ -10,7 +10,7 @@ const { protect } = require('../middleware/authMiddleware')
 router.get('/me', protect, userController.getMe)
 
 // registriamo un nuovo utente 
-router.post('/register', upload.single('immagineProfilo'),userController.registerUser)
+router.post('/register', upload.single('immagineProfilo'), userController.registerUser)
 
 // eseguiamo il login di un utente già esistente
 router.post('/login', userController.loginUser)
@@ -19,7 +19,7 @@ router.post('/login', userController.loginUser)
 router.get('/:id', userController.getUserById)
 
 // modifichiamo i dati di un signolo user tramite il suo id
-router.put('/:id', upload.single('immagineProfilo'),userController.updateUser)
+router.put('/:id', protect, upload.single('immagineProfilo'), userController.updateUser)
 
 // eliminiamo uno user tramite il suo id
 router.delete('/:id', userController.deleteUser)

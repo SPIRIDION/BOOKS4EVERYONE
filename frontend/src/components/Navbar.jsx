@@ -12,11 +12,6 @@ function Navbar() {
         BOOKS4EVERYONE
       </Link>
 
-      {/* Pulsante centrale placeholder */}
-      <div className="mx-auto">
-        <button className="btn btn-outline-light">Menù</button>
-      </div>
-
       {/* Icona profilo utente SOLO in homepage */}
       {isHome && (
         <Link to="/profile" className="btn btn-outline-light ms-auto">

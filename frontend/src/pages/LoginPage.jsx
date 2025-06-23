@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from '../utils/axiosConfig'
+import Navbar from '../components/Navbar'
 
 function LoginPage() {
   // Stato per email e password
@@ -32,43 +33,46 @@ function LoginPage() {
   }
 
   return (
-    <div className="container mt-5" >
-      <div className='center' style={{ maxWidth: '400px' }}>
-        <h2 className="mb-4 text-center">Login</h2>
+    <div>
+      <Navbar />
+      <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
+        <div style={{ maxWidth: '400px', width: '100%' }}>
+          <h2 className="mb-4 text-center">Login</h2>
 
-        <form onSubmit={handleSubmit}>
-          <input
-            type="email"
-            name="email"
-            className="form-control mb-3"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
+          <form onSubmit={handleSubmit}>
+            <input
+              type="email"
+              name="email"
+              className="form-control mb-3"
+              placeholder="Email"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
 
-          <input
-            type="password"
-            name="password"
-            className="form-control mb-3"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
+            <input
+              type="password"
+              name="password"
+              className="form-control mb-3"
+              placeholder="Password"
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
 
-          <button type="submit" className="btn btn-primary w-100">
-            Accedi
-          </button>
-        </form>
-        <div className="mt-3 text-center">
-          <p>Non sei ancora registrato?</p>
-          <button
-            className="btn btn-outline-secondary"
-            onClick={() => navigate('/register')}
-          >
-            Registrati
-          </button>
+            <button type="submit" className="btn btn-primary w-100">
+              Accedi
+            </button>
+          </form>
+          <div className="mt-3 text-center">
+            <p>Non sei ancora registrato?</p>
+            <button
+              className="btn btn-outline-secondary"
+              onClick={() => navigate('/register')}
+            >
+              Registrati
+            </button>
+          </div>
         </div>
       </div>
     </div>
