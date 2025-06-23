@@ -79,10 +79,10 @@ const MyOffersPage = () => {
         <Link to="/" className="navbar-brand fw-bold text-white">
           BOOKS4EVERYONE
         </Link>
-        <Button className='btn btn-outline-light ms-auto' onClick={() => navigate('/profile')}>
+        <Button className='btn btn-outline-light' onClick={() => navigate('/profile')}>
           Torna al profilo
         </Button>
-        <Button className='btn btn-outline-light ms-auto' onClick={() => navigate('/add-offer')}>
+        <Button className='btn btn-outline-light ms-3' onClick={() => navigate('/add-offer')}>
           Nuova offerta
         </Button>
       </nav>
