@@ -15,7 +15,6 @@ const MyOffersPage = () => {
   const fetchMyOffers = async () => {
     try {
       const res = await api.get('/offers/mine')
-
       const offersWithRatings = await Promise.all(
         res.data.map(async (offer) => {
           try {
@@ -26,12 +25,11 @@ const MyOffersPage = () => {
                 ? (comments.reduce((acc, comment) => acc + comment.rate, 0) / comments.length).toFixed(1)
                 : 'N/A'
             return { ...offer, averageRate }
-          } catch (err) {
+          } catch {
             return { ...offer, averageRate: 'N/A' }
           }
         })
       )
-
       setOffers(offersWithRatings)
     } catch (err) {
       console.error('Errore nel recupero delle offerte personali:', err)
@@ -79,15 +77,17 @@ const MyOffersPage = () => {
         <Link to="/" className="navbar-brand fw-bold text-white">
           BOOKS4EVERYONE
         </Link>
-        <Button className='btn btn-outline-light' onClick={() => navigate('/profile')}>
+        <Button className="btn-custom-navbar ms-auto" onClick={() => navigate('/profile')}>
           Torna al profilo
         </Button>
-        <Button className='btn btn-outline-light ms-3' onClick={() => navigate('/add-offer')}>
+        <Button className="btn-custom-navbar ms-2" onClick={() => navigate('/add-offer')}>
           Nuova offerta
         </Button>
       </nav>
+
       <div className="container py-4 main-content">
         <h2 className="mb-4 text-center">Le mie offerte</h2>
+
         {loading ? (
           <div className="text-center">
             <Spinner animation="border" />
@@ -96,45 +96,68 @@ const MyOffersPage = () => {
           <p className="text-center">Non hai ancora pubblicato nessuna offerta.</p>
         ) : (
           offers.map((offer) => (
-            <div
-              key={offer._id}
-              className="offer-card card mb-4 overflow-hidden shadow position-relative"
-              onMouseLeave={() => setVisibleComments(null)}
-            >
-              <div className="d-flex flex-row align-items-center">
-                <Card.Img
-                  variant="left"
+            <div key={offer._id} className="mb-4">
+              <div className="card offer-card d-flex flex-md-row flex-column align-items-center shadow-sm">
+                <img
                   src={offer.immagineLibro}
-                  style={{ width: '200px', height: 'auto', objectFit: 'cover' }}
+                  className="offer-image"
+                  alt={offer.titolo}
                 />
-                <Card.Body className="d-flex justify-content-between align-items-center w-100">
+                <div className="card-body d-flex flex-column justify-content-between w-100">
                   <div>
-                    <Card.Title>{offer.titolo}</Card.Title>
-                    <Card.Text><strong>Voto medio:</strong> {offer.averageRate}</Card.Text>
-                    <Card.Text>{offer.descrizione}</Card.Text>
+                    <h5 className="card-title fw-bold">{offer.titolo}</h5>
+                    <p><strong>Voto medio:</strong> {offer.averageRate}</p>
+                    <p>{offer.descrizione}</p>
                   </div>
-                  <div className="d-flex flex-column gap-2">
-                    <Button variant="warning" onClick={() => navigate(`/modifica-offerta/${offer._id}`)}>
+                  <div className="offer-buttons mt-3">
+                    <Button
+                      variant="warning"
+                      size="sm"
+                      className="me-2 mb-2"
+                      onClick={() => navigate(`/modifica-offerta/${offer._id}`)}
+                    >
                       Modifica
                     </Button>
-                    <Button variant="danger" onClick={() => handleDelete(offer._id)}>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      className="me-2 mb-2"
+                      onClick={() => handleDelete(offer._id)}
+                    >
                       Elimina
                     </Button>
                     <Button
                       variant="info"
-                      className="comment-button"
+                      size="sm"
+                      className="mb-2"
                       onClick={() => toggleComments(offer._id)}
                     >
                       Commenti
                     </Button>
                   </div>
-                </Card.Body>
+                </div>
               </div>
+
               {visibleComments === offer._id && (
-                <div className="bg-light p-3 border-top">
+                <div className="comment-section bg-light p-3 mt-2 rounded shadow-sm">
                   {commentsByOffer[offer._id]?.length > 0 ? (
-                    commentsByOffer[offer._id].map((comment, idx) => (
-                      <p key={idx}><strong>{comment.utente?.username || 'Utente'}:</strong> {comment.titolo}</p>
+                    commentsByOffer[offer._id].map((comment) => (
+                      <div
+                        key={comment._id}
+                        className="d-flex align-items-start border-bottom py-2"
+                      >
+                        <img
+                          src={comment.user.immagineProfilo || 'https://placehold.co/50x50'}
+                          alt="Profilo"
+                          className="rounded-circle me-3"
+                          style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                        />
+                        <div>
+                          <h6 className="fw-bold mb-1">{comment.titolo}</h6>
+                          <p className="mb-1">{comment.testo}</p>
+                          <small className="text-muted">— {comment.user.username}</small>
+                        </div>
+                      </div>
                     ))
                   ) : (
                     <p>Ancora nessun commento...</p>
