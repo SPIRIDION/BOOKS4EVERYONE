@@ -3,10 +3,12 @@ import axios from '../utils/axiosConfig'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useNavigate } from 'react-router-dom'
+import { Spinner } from 'react-bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 function HomePage() {
   const [offers, setOffers] = useState([])
+  const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -34,6 +36,8 @@ function HomePage() {
         setOffers(offersWithRatings)
       } catch (err) {
         console.error('Errore nel recupero delle offerte:', err)
+      } finally {
+        setLoading(false)
       }
     }
 
@@ -49,52 +53,66 @@ function HomePage() {
   return (
     <div>
       <Navbar />
-      <div className="container main-content">
+      <div className="container main-content py-4">
         <div className="row">
-          {/* Sidebar */}
-          <div className="col-md-3 bg-light d-none d-md-block p-3 sidebar">
-            <h5>Menu</h5>
-            <button className="btn btn-outline-primary w-100 my-4" onClick={() => navigate('/cart')}>Carrello</button>
+          
+          {/* Sidebar tablet e desktop */}
+          <div className="col-md-3 d-none d-md-block bg-light p-3 sidebar shadow-sm">
+            <h5><i className="bi bi-cart-fill me-2"></i>Menu</h5>
+            <button className="btn btn-outline-primary w-100 my-4" onClick={() => navigate('/cart')}>
+              <i className="bi bi-cart3 me-2"></i>Carrello
+            </button>
           </div>
 
-          {/* Main content */}
-          <div className="col-md-9 col-12 p-3">
-            <div className="row">
-              {offers.map((offer) => (
-                <div key={offer._id} className="col-sm-12 col-md-6 col-lg-4 mb-4 g-2">
-                  <div
-                    className="card offer-card h-100 position-relative overflow-hidden custom-card"
-                    style={{ transition: 'all 0.3s ease' }}
-                  >
-                    {offer.immagineLibro && (
-                      <img
-                        src={offer.immagineLibro}
-                        className="card-img-top custom-card-img"
-                        alt={offer.titolo}
-                      />
-                    )}
-                    <div className="card-body">
-                      <h5 className="card-title fw-bold">{offer.titolo}</h5>
-                      <div>{renderStars(offer.mediaVoto)}</div>
-                      {offer.commenti?.[0]?.titolo && (
-                        <p className="card-text mt-2">{offer.commenti[0].titolo}</p>
+          {/* Sidebar mobile come menu a tendina */}
+          <div className="col-12 d-md-none mb-4">
+            <details className="border rounded p-3 bg-light shadow-sm mobile-sidebar" style={{ transition: 'all 0.3s ease' }}>
+              <summary className="fw-bold d-flex align-items-center">
+                <i className="bi bi-cart-fill me-2"></i> Menu
+              </summary>
+              <button className="btn btn-outline-primary w-100 mt-3" onClick={() => navigate('/cart')}>
+                <i className="bi bi-cart3 me-2"></i>Carrello
+              </button>
+            </details>
+          </div>
+
+          {/* Main Content */}
+          <div className="col-md-9 col-12">
+            {loading ? (
+              <div className="text-center my-5">
+                <Spinner animation="border" />
+              </div>
+            ) : (
+              <div className="row">
+                {offers.map((offer) => (
+                  <div key={offer._id} className="col-12 col-sm-6 col-lg-4 mb-4">
+                    <div className="card h-100 shadow-sm">
+                      {offer.immagineLibro && (
+                        <img
+                          src={offer.immagineLibro}
+                          alt={offer.titolo}
+                          className="card-img-top"
+                          style={{ height: '200px', objectFit: 'cover' }}
+                        />
                       )}
-                      <p className="card-text text-muted mt-2">
-                        Pubblicato da: {offer.user?.username || 'Utente sconosciuto'}
-                      </p>
-                    </div>
-                    <div className="details-button-container">
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => navigate(`/offerta/${offer._id}`)}
-                      >
-                        Vedi Dettagli
-                      </button>
+                      <div className="card-body d-flex flex-column">
+                        <h5 className="card-title">{offer.titolo}</h5>
+                        <div className="mb-2">{renderStars(offer.mediaVoto)}</div>
+                        <p className="text-muted mt-auto">
+                          Pubblicato da: <strong>{offer.user?.username || 'Utente sconosciuto'}</strong>
+                        </p>
+                        <button
+                          className="btn btn-primary mt-2"
+                          onClick={() => navigate(`/offerta/${offer._id}`)}
+                        >
+                          Vedi Dettagli
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

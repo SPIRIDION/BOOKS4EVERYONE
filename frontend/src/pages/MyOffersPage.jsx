@@ -1,52 +1,53 @@
 import { useEffect, useState } from 'react'
-import Footer from '../components/Footer'
 import { useNavigate, Link } from 'react-router-dom'
-import { Card, Button, Spinner } from 'react-bootstrap'
 import api from '../utils/axiosConfig'
+import Footer from '../components/Footer'
 import './MyOffersPage.css'
 
-const MyOffersPage = () => {
+function MyOffersPage() {
   const [offers, setOffers] = useState([])
   const [loading, setLoading] = useState(true)
   const [visibleComments, setVisibleComments] = useState(null)
   const [commentsByOffer, setCommentsByOffer] = useState({})
   const navigate = useNavigate()
 
-  const fetchMyOffers = async () => {
-    try {
-      const res = await api.get('/offers/mine')
-      const offersWithRatings = await Promise.all(
-        res.data.map(async (offer) => {
-          try {
-            const commentsRes = await api.get(`/comments/${offer._id}`)
-            const comments = commentsRes.data
-            const averageRate =
-              comments.length > 0
-                ? (comments.reduce((acc, comment) => acc + comment.rate, 0) / comments.length).toFixed(1)
-                : 'N/A'
-            return { ...offer, averageRate }
-          } catch {
-            return { ...offer, averageRate: 'N/A' }
-          }
-        })
-      )
-      setOffers(offersWithRatings)
-    } catch (err) {
-      console.error('Errore nel recupero delle offerte personali:', err)
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    const fetchOffers = async () => {
+      try {
+        const res = await api.get('/offers/mine')
+        const offersWithRatings = await Promise.all(
+          res.data.map(async (offer) => {
+            try {
+              const commentRes = await api.get(`/comments/${offer._id}`)
+              const comments = commentRes.data
+              const avg =
+                comments.length > 0
+                  ? (comments.reduce((acc, c) => acc + c.rate, 0) / comments.length).toFixed(1)
+                  : 'N/A'
+              return { ...offer, comments, averageRate: avg }
+            } catch {
+              return { ...offer, comments: [], averageRate: 'N/A' }
+            }
+          })
+        )
+        setOffers(offersWithRatings)
+      } catch (err) {
+        console.error('Errore nel caricamento offerte:', err)
+      } finally {
+        setLoading(false)
+      }
     }
-  }
 
-  const handleDelete = async (offerId) => {
-    const confirmed = window.confirm('Sei sicuro di voler eliminare questa offerta?')
-    if (!confirmed) return
+    fetchOffers()
+  }, [])
 
+  const handleDelete = async (id) => {
+    if (!window.confirm('Sei sicuro di voler eliminare questa offerta?')) return
     try {
-      await api.delete(`/offers/${offerId}`)
-      setOffers(offers.filter((offer) => offer._id !== offerId))
+      await api.delete(`/offers/${id}`)
+      setOffers((prev) => prev.filter((offer) => offer._id !== id))
     } catch (err) {
-      console.error("Errore durante l'eliminazione:", err)
+      console.error('Errore durante l\'eliminazione:', err)
     }
   }
 
@@ -55,21 +56,14 @@ const MyOffersPage = () => {
       setVisibleComments(null)
       return
     }
-
     try {
       const res = await api.get(`/comments/${offerId}`)
       setCommentsByOffer((prev) => ({ ...prev, [offerId]: res.data }))
       setVisibleComments(offerId)
     } catch (err) {
       console.error('Errore nel recupero dei commenti:', err)
-      setCommentsByOffer((prev) => ({ ...prev, [offerId]: [] }))
-      setVisibleComments(offerId)
     }
   }
-
-  useEffect(() => {
-    fetchMyOffers()
-  }, [])
 
   return (
     <>
@@ -77,63 +71,52 @@ const MyOffersPage = () => {
         <Link to="/" className="navbar-brand fw-bold text-white">
           BOOKS4EVERYONE
         </Link>
-        <Button className="btn-custom-navbar ms-auto" onClick={() => navigate('/profile')}>
+        <button className="btn btn-custom-navbar ms-auto" onClick={() => navigate('/profile')}>
           Torna al profilo
-        </Button>
-        <Button className="btn-custom-navbar ms-2" onClick={() => navigate('/add-offer')}>
+        </button>
+        <button className="btn btn-custom-navbar ms-2" onClick={() => navigate('/add-offer')}>
           Nuova offerta
-        </Button>
+        </button>
       </nav>
 
-      <div className="container py-4 main-content">
+      <div className="container py-4">
         <h2 className="mb-4 text-center">Le mie offerte</h2>
 
         {loading ? (
-          <div className="text-center">
-            <Spinner animation="border" />
+          <div className="text-center mt-5">
+            <div className="spinner-border text-primary" role="status"></div>
           </div>
         ) : offers.length === 0 ? (
           <p className="text-center">Non hai ancora pubblicato nessuna offerta.</p>
         ) : (
           offers.map((offer) => (
-            <div key={offer._id} className="mb-4">
-              <div className="card offer-card d-flex flex-md-row flex-column align-items-center shadow-sm">
-                <img
-                  src={offer.immagineLibro}
-                  className="offer-image"
-                  alt={offer.titolo}
-                />
-                <div className="card-body d-flex flex-column justify-content-between w-100">
-                  <div>
-                    <h5 className="card-title fw-bold">{offer.titolo}</h5>
-                    <p><strong>Voto medio:</strong> {offer.averageRate}</p>
-                    <p>{offer.descrizione}</p>
+            <div key={offer._id} className="offer-wrapper mb-4">
+              <div className="card offer-card">
+                <div className="row g-0 flex-md-row flex-column">
+                  <div className="col-md-3">
+                    <img
+                      src={offer.immagineLibro}
+                      className="img-fluid h-100 offer-img"
+                      alt={offer.titolo}
+                    />
                   </div>
-                  <div className="offer-buttons mt-3">
-                    <Button
-                      variant="warning"
-                      size="sm"
-                      className="me-2 mb-2"
-                      onClick={() => navigate(`/modifica-offerta/${offer._id}`)}
-                    >
-                      Modifica
-                    </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      className="me-2 mb-2"
-                      onClick={() => handleDelete(offer._id)}
-                    >
-                      Elimina
-                    </Button>
-                    <Button
-                      variant="info"
-                      size="sm"
-                      className="mb-2"
-                      onClick={() => toggleComments(offer._id)}
-                    >
-                      Commenti
-                    </Button>
+                  <div className="col-md-9 p-3 d-flex flex-column justify-content-between">
+                    <div>
+                      <h5 className="fw-bold">{offer.titolo}</h5>
+                      <p><strong>Voto medio:</strong> {offer.averageRate}</p>
+                      <p>{offer.descrizione}</p>
+                    </div>
+                    <div className="action-buttons">
+                      <button className="btn btn-warning btn-sm me-2" onClick={() => navigate(`/modifica-offerta/${offer._id}`)}>
+                        Modifica
+                      </button>
+                      <button className="btn btn-danger btn-sm me-2" onClick={() => handleDelete(offer._id)}>
+                        Elimina
+                      </button>
+                      <button className="btn btn-info btn-sm" onClick={() => toggleComments(offer._id)}>
+                        Commenti
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -142,10 +125,7 @@ const MyOffersPage = () => {
                 <div className="comment-section bg-light p-3 mt-2 rounded shadow-sm">
                   {commentsByOffer[offer._id]?.length > 0 ? (
                     commentsByOffer[offer._id].map((comment) => (
-                      <div
-                        key={comment._id}
-                        className="d-flex align-items-start border-bottom py-2"
-                      >
+                      <div key={comment._id} className="d-flex align-items-start border-bottom py-2">
                         <img
                           src={comment.user.immagineProfilo || 'https://placehold.co/50x50'}
                           alt="Profilo"
@@ -160,7 +140,7 @@ const MyOffersPage = () => {
                       </div>
                     ))
                   ) : (
-                    <p>Ancora nessun commento...</p>
+                    <p>Nessun commento disponibile.</p>
                   )}
                 </div>
               )}
@@ -168,7 +148,6 @@ const MyOffersPage = () => {
           ))
         )}
       </div>
-      <Footer />
     </>
   )
 }

@@ -10,6 +10,8 @@ import OfferDetailsPage from "./pages/OfferDetailsPage";
 import MyOffersPage from './pages/MyOffersPage'
 import AddOfferPage from './pages/AddOfferPage';
 import EditOfferPage from './pages/EditOfferPage'
+import CartPage from './pages/CartPage'
+import OrderSummaryPage from './pages/OrderSummaryPage'
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
             <Route path="/my-offers" element={<MyOffersPage />} />
             <Route path="/add-offer" element={<AddOfferPage />} />
             <Route path="/modifica-offerta/:id" element={<EditOfferPage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/order-summary" element={<OrderSummaryPage />} />
           </Routes>
         </main>
       </div>
